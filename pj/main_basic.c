@@ -60,7 +60,15 @@ int main(void){
 	
   // Dead loop & program hangs here
 	while(1){
-		for(i=0; i<1000000; i++); // simple delay
-		toggle_LED();
+		int a = 6;
+		while(a>0) {
+			for(i=0; i<100000; i++); // simple delay
+			toggle_LED();
+		}
+		a = 0;
+		while(a>0) {
+			for(i=0; i<1000000; i++); // simple delay
+			toggle_LED();
+		}
 	}
 }
