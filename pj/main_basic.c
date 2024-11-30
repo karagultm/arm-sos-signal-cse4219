@@ -69,6 +69,15 @@ void delay(int ms){
 	for(int x=0; x<ms; x++);		//set delay size
 }
 
+void blink(int delaySize, int blinkSize) {
+	for(int i = 3; i > 0; i--) {
+		delay(delaySize);
+		toggle_LED();
+		delay(blankSize);
+	}
+}
+
+
 int main(void){
 	int i;
 	enable_HSI();
@@ -78,26 +87,11 @@ int main(void){
   // Dead loop & program hangs here
 	while(1){
 		if(takeInput()){
-			int a = 6;
-
-			while(a>0) {
-				delay(500000);
-				toggle_LED();
-				a=a-1;
-			}
-			a = 6;
-			while(a>0) {
-				delay(1000000);
-				toggle_LED();
-				a=a-1;
-			}
-			a= 6;
-			while(a>0) {
-				delay(500000);
-				toggle_LED();
-				a=a-1;
-			}
 		
+			blink(4000000,4000000)
+			blink(4000000,8000000)
+			blink(4000000,4000000)
+			
 		}
 	
 	}
