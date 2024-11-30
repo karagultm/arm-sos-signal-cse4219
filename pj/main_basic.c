@@ -71,10 +71,10 @@ void delay(int ms){
 
 void blink(int delaySize, int blinkSize) {
 	for(int i = 3; i > 0; i--) {
-		toggle_LED();
-		delay(blinkSize);
-		toggle_LED();
-		delay(delaySize);
+		toggle_LED();   //kapali halini açik hale getirdi
+		delay(blinkSize);  //açikkenki halinde kaç s bekleyecegini koydu
+		toggle_LED();     //tekrar söndürdü
+		delay(delaySize);    //sönük halinde kaç s bekleyecegni koydu
 	}
 }
 
@@ -88,7 +88,7 @@ int main(void){
 	while(1){
 		if(takeInput()){
 		
-			blink(400000,400000);
+			blink(400000,400000);  //dot için 1/4 bekle 1/4 sön
 			blink(400000,800000);
 			blink(400000,400000);
 			
