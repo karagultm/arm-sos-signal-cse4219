@@ -62,7 +62,7 @@ void toggle_LED(){
 }
 
 int takeInput(){
-	return !(GPIOC->IDR &= (1 << BUTTON_PIN));
+	return !(GPIOC->IDR & (1 << BUTTON_PIN));
 }
 
 void delay(int ms){
