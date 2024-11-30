@@ -71,15 +71,15 @@ void delay(int ms){
 
 void blink(int delaySize, int blinkSize) {
 	for(int i = 3; i > 0; i--) {
-		delay(delaySize);
 		toggle_LED();
-		delay(blankSize);
+		delay(blinkSize);
+		toggle_LED();
+		delay(delaySize);
 	}
 }
 
 
 int main(void){
-	int i;
 	enable_HSI();
 	configure_LED_pin();
 	configure_BUTTON_pin();
@@ -88,9 +88,9 @@ int main(void){
 	while(1){
 		if(takeInput()){
 		
-			blink(4000000,4000000)
-			blink(4000000,8000000)
-			blink(4000000,4000000)
+			blink(400000,400000);
+			blink(400000,800000);
+			blink(400000,400000);
 			
 		}
 	
