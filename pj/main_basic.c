@@ -40,6 +40,15 @@ void configure_LED_pin(){
 	GPIOA->PUPDR  &= ~(3<<(2*LED_PIN));  // No pull-up, no pull-down
 }
 
+
+void configure_BUTTON_pin(){
+	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOCEN; 
+	GPIOC->MODER &= ~(3UL<<(2*BUTTON_PIN));
+	GPIOC->PUPDR &= ~(3UL<<(2*BUTTON_PIN));
+	
+
+}
+
 void turn_on_LED(){
 	GPIOA->ODR |= 1 << LED_PIN;
 }
@@ -52,23 +61,44 @@ void toggle_LED(){
 	GPIOA->ODR ^= (1 << LED_PIN);
 }
 
+int takeInput(){
+	return !(GPIOC->IDR &= (1 << BUTTON_PIN));
+}
+
+void delay(int ms){
+	for(int x=0; x<ms; x++);		//set delay size
+}
+
 int main(void){
 	int i;
 	enable_HSI();
 	configure_LED_pin();
-	turn_on_LED();
+	configure_BUTTON_pin();
 	
   // Dead loop & program hangs here
 	while(1){
-		int a = 6;
-		while(a>0) {
-			for(i=0; i<100000; i++); // simple delay
-			toggle_LED();
+		if(takeInput()){
+			int a = 6;
+
+			while(a>0) {
+				delay(500000);
+				toggle_LED();
+				a=a-1;
+			}
+			a = 6;
+			while(a>0) {
+				delay(1000000);
+				toggle_LED();
+				a=a-1;
+			}
+			a= 6;
+			while(a>0) {
+				delay(500000);
+				toggle_LED();
+				a=a-1;
+			}
+		
 		}
-		a = 0;
-		while(a>0) {
-			for(i=0; i<1000000; i++); // simple delay
-			toggle_LED();
-		}
+	
 	}
 }
