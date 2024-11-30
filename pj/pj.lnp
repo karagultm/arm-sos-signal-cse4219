@@ -1,0 +1,7 @@
+--cpu=Cortex-M4.fp.sp --branchpatch=sdcomp-29491-629360
+".\startup_stm32l476xx.o"
+".\main_basic.o"
+--strict --scatter ".\pj.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\pj.map" -o .\pj.axf
