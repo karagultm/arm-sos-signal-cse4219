@@ -5,6 +5,10 @@
 #define LED_PIN    5
 #define BUTTON_PIN 13
 
+void delay_ms(int milliseconds);
+void setup_gpio(void);
+void sos_signal(void);
+
 // User HSI (high-speed internal) as the processor clock
 void enable_HSI(){
 	// Enable High Speed Internal Clock (HSI = 16 MHz)
@@ -52,8 +56,68 @@ void toggle_LED(){
 	GPIOA->ODR ^= (1 << LED_PIN);
 }
 
+void setup_gpio(void) {
+    // GPIO saatlerini etkinlestir
+    RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN; // GPIOA'yi etkinlestir (LED için)
+    RCC->AHB2ENR |= RCC_AHB2ENR_GPIOCEN; // GPIOC'yi etkinlestir (Buton için)
+
+    // LED (PA5) için GPIO ayarlari
+    GPIOA->MODER &= ~(3UL << (5 * 2)); // PA5 için moderi sifirla
+    GPIOA->MODER |= (1UL << (5 * 2));  // PA5 çikis moduna ayarla
+    GPIOA->OTYPER &= ~(1UL << 5);      // PA5 push-pull olarak ayarla
+    GPIOA->PUPDR &= ~(3UL << (5 * 2)); // PA5 no-pull olarak ayarla
+
+    // Buton (PC13) için GPIO ayarlari
+    GPIOC->MODER &= ~(3UL << (13 * 2)); // PC13 giris moduna ayarla
+    GPIOC->PUPDR &= ~(3UL << (13 * 2)); // PC13 no-pull olarak ayarla
+}
+
+void sos_signal(void) {
+    // SOS sinyali: DOT, DOT, DOT, DASH, DASH, DASH, DOT, DOT, DOT
+    for (int i = 0; i < 3; i++) { // DOT (kisa)
+        GPIOA->ODR |= (1UL << 5); // LED'i yak
+        delay_ms(250);            // 0.25 saniye bekle
+        GPIOA->ODR &= ~(1UL << 5); // LED'i söndür
+        delay_ms(250);            // 0.25 saniye bosluk
+    }
+
+    for (int i = 0; i < 3; i++) { // DASH (uzun)
+        GPIOA->ODR |= (1UL << 5); // LED'i yak
+        delay_ms(500);            // 0.5 saniye bekle
+        GPIOA->ODR &= ~(1UL << 5); // LED'i söndür
+        delay_ms(250);            // 0.25 saniye bosluk
+    }
+
+    for (int i = 0; i < 3; i++) { // DOT (kisa)
+        GPIOA->ODR |= (1UL << 5); // LED'i yak
+        delay_ms(250);            // 0.25 saniye bekle
+        GPIOA->ODR &= ~(1UL << 5); // LED'i söndür
+        delay_ms(250);            // 0.25 saniye bosluk
+    }
+
+    // SOS sinyali tamamlandiktan sonra 1 saniye bekle
+    delay_ms(1000);
+}	
+
+void delay_ms(int milliseconds) {
+    // Basit bir gecikme fonksiyonu
+    for (int i = 0; i < milliseconds * 4000; i++) {
+        __NOP(); // No Operation (islemciyi mesgul et)
+    }
+}
+
 int main(void){
-	int i;
+	
+	setup_gpio();
+
+    while (1) {
+        // Butona basilinca SOS sinyalini gönder
+        if ((GPIOC->IDR & GPIO_IDR_IDR_13) == 0) { // PC13 butona basili mi kontrol et
+            sos_signal();
+        }
+    }
+	
+	/*int i;
 	enable_HSI();
 	configure_LED_pin();
 	turn_on_LED();
@@ -62,5 +126,5 @@ int main(void){
 	while(1){
 		for(i=0; i<1000000; i++); // simple delay
 		toggle_LED();
-	}
+	}*/
 }
