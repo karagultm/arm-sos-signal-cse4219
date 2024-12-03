@@ -69,22 +69,25 @@ int takeInput(){
 	return !(GPIOC->IDR & (1 << BUTTON_PIN));
 }
 
+//1ms i kaç kez bekleyecegiz burada belli oluyor mesela bu kismi 250 kez kullaniyoruz
  void SysTick_Handler (void) { // SysTick interrupt service routine 
 if (TimeDelay > 0)    
-TimeDelay--;        
+	TimeDelay--;        //BURADA INTERUPTU AZALTIOZ ASLINDA :O 
 } 
- 
-void delay (uint32_t nTime) {
+
+//ne kadar beklemek istiyosan onu söylüyosun 
+void delay (uint32_t nTime) {    //her 1 ms azaldiginda 16k cycle geçiyo
  // nTime: specifies the delay time length
  TimeDelay = nTime;      
 // TimeDelay must be declared as volatile
  while(TimeDelay != 0);  // Busy wait
  }
 
+ 
 void blink(uint32_t delaySize, uint32_t blinkSize) {
 	for(int i = 3; i > 0; i--) {
 		toggle_LED();   //kapali halini açik hale getirdi
-		delay(blinkSize);  //açikkenki halinde kaç s bekleyecegini koydu
+		delay(blinkSize);  //açikkenki halinde kaç s bekleyecegini koydu 250 ms ise 250*16 cycle geçecek
 		toggle_LED();     //tekrar söndürdü
 		delay(delaySize);    //sönük halinde kaç s bekleyecegni koydu
 	}
@@ -111,15 +114,16 @@ int main(void){
 	enable_HSI();
 	configure_LED_pin();
 	configure_BUTTON_pin();
+	SysTick_Initialize (16000);  //1msde çevirdigi cycle
 	
 	
   // Dead loop & program hangs here
 	while(1){
 		if(takeInput()){
 		
-			blink(3999999,3999999);  //dot için 1/4 bekle 1/4 sön
-			blink(3999999,7999999);
-			blink(3999999,3999999);
+			blink(250,250);  //dot için 1/4 bekle 1/4 sön
+			blink(250,500);
+			blink(250,250);
 			
 		}
 	
