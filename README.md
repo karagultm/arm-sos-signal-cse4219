@@ -12,7 +12,7 @@ Bu fonksiyonda öncelikle GPIO da C portunda butonumuz bulunduğu için C portun
 Bu fonksiyon ile yaptığımız olay aslında şu. Bizim kartımızın frekansını 16Mhz olarak bildiğimizden ve her bir interruptın arasındaki sürerin 1ms olmasının bizim işimizi kolaylaştıracağını düşündüğümüzden interruplar arasında 1ms olacak şekilde 16k tick verdik. İçerisindeki kısımları derste gördüğümüz slide üzerinden almıştık. Burada syystick enable yapıldığında systick handler otomatik olarak çalışmaya başlar.
 
 ### systick_handler
-bu kod 1ms de bir gerçekleşir ve timedelay sıfırdan büyükse timedelay i azaltırız.
+bu fonksiyon bir interrup fonksiyonu ve systick initialize de her bir interrupt arasını 1ms olacak şekilde tick değerini 16kya ayarladığımızdan bu kod da 1ms de bir gerçekleşir ve timedelay sıfırdan büyükse timedelay i azaltır.
 
 ### while loop
 
