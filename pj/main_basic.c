@@ -4,6 +4,10 @@
 // PC.13 <--> Blue user button
 #define LED_PIN    5
 #define BUTTON_PIN 13
+#define SysTick_CTRL_CLKSOURCE 4
+#define SysTick_CTRL_TICKINT 2
+#define SysTick_CTRL_ENABLE 1
+volatile int32_t TimeDelay;
 
 // User HSI (high-speed internal) as the processor clock
 void enable_HSI(){
@@ -65,32 +69,61 @@ int takeInput(){
 	return !(GPIOC->IDR & (1 << BUTTON_PIN));
 }
 
-void delay(int ms){
-	for(int x=0; x<ms; x++);		//set delay size
-}
+//1ms i kaç kez bekleyecegiz burada belli oluyor mesela bu kismi 250 kez kullaniyoruz
+ void SysTick_Handler (void) { // SysTick interrupt service routine 
+if (TimeDelay > 0)    
+	TimeDelay--;        //BURADA INTERUPTU AZALTIOZ ASLINDA :O 
+} 
 
-void blink(int delaySize, int blinkSize) {
+//ne kadar beklemek istiyosan onu söylüyosun 
+void delay (uint32_t nTime) {    //her 1 ms azaldiginda 16k cycle geçiyo
+ // nTime: specifies the delay time length
+ TimeDelay = nTime;      
+// TimeDelay must be declared as volatile
+ while(TimeDelay != 0);  // Busy wait
+ }
+
+ 
+void blink(uint32_t delaySize, uint32_t blinkSize) {
 	for(int i = 3; i > 0; i--) {
-		toggle_LED();
-		delay(blinkSize);
-		toggle_LED();
-		delay(delaySize);
+		toggle_LED();   //kapali halini açik hale getirdi
+		delay(blinkSize);  //açikkenki halinde kaç s bekleyecegini koydu 250 ms ise 250*16 cycle geçecek
+		toggle_LED();     //tekrar söndürdü
+		delay(delaySize);    //sönük halinde kaç s bekleyecegni koydu
 	}
 }
+
+void SysTick_Initialize (uint32_t ticks) {
+    SysTick->CTRL = 0;            // Disable SysTick
+    SysTick->LOAD = ticks - 1;    // Set reload register
+    // Set interrupt priority of SysTick to least urgency (i.e., largest priority value)
+    NVIC_SetPriority (SysTick_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
+    SysTick->VAL = 0;             // Reset the SysTick counter value
+    // Select processor clock: 1 = processor clock; 0 = external clock
+    SysTick->CTRL |= SysTick_CTRL_CLKSOURCE;
+    // Enables SysTick interrupt, 1 = Enable, 0 = Disable
+    SysTick->CTRL |= SysTick_CTRL_TICKINT;
+    // Enable SysTick
+    SysTick->CTRL |= SysTick_CTRL_ENABLE;
+ }
+
+
 
 
 int main(void){
 	enable_HSI();
 	configure_LED_pin();
 	configure_BUTTON_pin();
+	SysTick_Initialize (16000);  //1msde çevirdigi cycle
+	
 	
   // Dead loop & program hangs here
 	while(1){
 		if(takeInput()){
 		
-			blink(400000,400000);
-			blink(400000,800000);
-			blink(400000,400000);
+			blink(250,250);  //dot için 1/4 bekle 1/4 sön
+			blink(250,500);
+			blink(250,250);
 			
 		}
 	
